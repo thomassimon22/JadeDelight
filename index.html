@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Jade Delight</title>
+<style>
+	h1 {
+								background: #ff5454;
+								text-align:center;
+								padding:10px;
+								font-style:italic;}
+  body {
+								font-family: "Helvetica";
+								background-color: #d9beab;}
+  .result {
+								border-style: solid;
+                border-width: 5px;
+                margin: 2% 2%;
+                border-color:#ff5454;
+                padding:2%;
+                text-align:center;}
+	input[type=text] {
+		 						padding: 5px 5px;
+		 						margin: 8px 0;
+								box-sizing: border-box;}
+	.button {
+							  background-color: #ff5454;
+							  border: none;
+							  padding: 15px 32px;
+								font-family: "Helvetica";
+							  text-align: center;
+							  display: inline-block;}
+
+</style>
+</head>
+
+<body>
+<script language="javascript">
+
+function MenuItem(name, cost)
+{
+	this.name = name;
+	this.cost = cost;
+}
+
+menuItems = new Array(
+	new MenuItem("Chicken Chop Suey", 4.5),
+	new MenuItem("Sweet and Sour Pork", 6.25),
+	new MenuItem("Shrimp Lo Mein", 5.25),
+	new MenuItem("Moo Shi Chicken", 6.5),
+	new MenuItem("Fried Rice", 2.35)
+);
+
+function makeSelect(name, minRange, maxRange)
+{
+	var t= "";
+	t = "<select name='" + name + "' size='1' + onchange=currentCost(this.name,this.value)>";
+	for (j=minRange; j<=maxRange; j++)
+	   t += "<option>" + j + "</option>";
+	t+= "</select>";
+	return t;
+}
+function currentCost(name,value)
+{
+	var item = name[name.length - 1];
+
+	document.getElementsByName('cost')[item].value = (menuItems[item].cost * value).toFixed(2);
+
+	var subtotal = 0.00;
+	for (i=0; i<document.getElementsByName('cost').length; i++){
+		subtotal += parseFloat(document.getElementsByName('cost')[i].value);
+	}
+	subtotal = subtotal.toFixed(2);
+	document.getElementById('subtotal').value = subtotal;
+	tax = (subtotal*.0625).toFixed(2);
+	document.getElementById('tax').value = tax;
+	total = parseFloat(tax)+parseFloat(subtotal);
+	document.getElementById('total').value = total;
+
+}
+
+function genReceipt(){
+	with(document.order){
+		var valid_phone = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+		var error = false;
+		var s;
+		if (lname.value == ""){
+			alert("Please input your last name");
+			error = true;
+		}
+		if (!phone.value.match(valid_phone) ){
+			alert("Please check that you privided a valid phone number");
+			error = true;
+		}
+		if (p_or_d[1].checked && (street.value == "" || city.value == "")){
+			alert("Please provide a delivery address");
+			error = true;
+		}
+		if (total.value == "" || total.value == 0){
+			alert("Please select items for purchase");
+			error = true;
+		}
+		if (error){
+			s = "[Order was not placed. Invalid Input(s)]";
+			result.innerHTML = s;
+			return false;
+		}
+		s = "Thank you for your order! <br>Your cost totals to: $" + total.value + "<br>";
+		var d = new Date();
+		var mins = d.getMinutes();
+		var hrs = d.getHours();
+		var time;
+		var is_am = false;
+		if (p_or_d[1].checked){
+			mins = mins + 30;
+		} else {
+			mins = mins + 15;
+		}
+		if (mins >= 60){
+			mins = mins - 60;
+			hrs = hrs + 1;
+		}
+		if (hrs >= 12){
+			is_am = false;
+		} else {
+			is_am = true;
+		}
+		if (mins < 10){
+			mins = "0" + mins;
+		}
+		time = (hrs%24) + ":" + mins;
+		s = s + "The order will be ready for " + p_or_d.value + " at " + time + " ";
+		if (is_am){
+			s = s + "am";
+		} else {
+			s = s + "pm";
+		}
+		result.innerHTML = s;
+		result.style.opacity = "1";
+	}
+
+	return false //if this was a real form it would return true and clear the info
+							 //but for the sake of the assignment I am returning false
+}
+</script>
+
+<h1>Jade Delight</h1>
+<form name="order" onsubmit="return genReceipt()">
+
+<p>First Name: <br><input type="text"  name='fname' /></p>
+<p>Last Name*:  <br><input type="text"  name='lname' /></p>
+<p>Street: <br><input type="text"  name='street' /></p>
+<p>City: <br><input type="text" name='city' /></p>
+<p>Phone*: <br><input type="text" placeholder="ex: 555-555-5555" name='phone' /></p>
+<p>
+	<input type="radio"  name="p_or_d" value = "pickup" checked="checked"/>Pickup
+	<input type="radio"  name='p_or_d' value = 'delivery'/>
+	Delivery
+</p>
+<table border="0" cellpadding="3">
+  <tr>
+    <th>Select Item</th>
+    <th>Item Name</th>
+    <th>Cost Each</th>
+    <th>Total Cost</th>
+  </tr>
+<script language="javascript">
+
+  var s = "";
+  for (i=0; i< menuItems.length; i++)
+  {
+	  s += "<tr><td>";
+	  s += makeSelect("quan" + i, 0, 10);
+	  s += "</td><td>" + menuItems[i].name + "</td>";
+	  s += "<td> $ " + menuItems[i].cost.toFixed(2) + "</td>";
+	  s += "<td>$<input type='text' name='cost' value='0'/></td></tr>";
+  }
+  document.writeln(s);
+</script>
+</table>
+<p>Subtotal:
+   $<br><input type="text"  name='subtotal' id="subtotal" />
+</p>
+<p>Mass tax 6.25%:
+  $<br><input type="text"  name='tax' id="tax" />
+</p>
+<p>Total: $<br><input type="text"  name='total' id="total" />
+</p>
+
+<input class="button"type = "submit" value = "Submit Order" />
+
+</form>
+<br >
+<div class='result' style="opacity:0;" id='result'>&nbsp;</div>
+</body>
+</html>
