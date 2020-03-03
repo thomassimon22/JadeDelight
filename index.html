@@ -128,7 +128,7 @@ function genReceipt(){
 		if (mins < 10){
 			mins = "0" + mins;
 		}
-		time = (hrs%24) + ":" + mins;
+		time = (hrs%12) + ":" + mins;
 		s = s + "The order will be ready for " + p_or_d.value + " at " + time + " ";
 		if (is_am){
 			s = s + "am";
